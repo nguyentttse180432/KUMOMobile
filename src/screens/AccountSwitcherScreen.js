@@ -6,43 +6,22 @@ import {
   SafeAreaView,
   TouchableOpacity,
   FlatList,
+  StatusBar,
+  Platform,
 } from "react-native";
 import { COLORS } from "../constants/colors";
+import { accountsData } from "../data/appData";
 
 const AccountSwitcherScreen = ({ navigation, route }) => {
   const { currentAccount } = route.params || { currentAccount: "parent" };
-
-  // Dữ liệu mẫu cho tài khoản phụ huynh và các tài khoản con
-  const accounts = [
-    {
-      id: "parent",
-      name: "Nguyễn Văn Phụ Huynh",
-      type: "parent",
-      avatar: null,
-    },
-    {
-      id: "child1",
-      name: "Nguyễn Văn A",
-      age: 7,
-      grade: "Lớp 2",
-      type: "child",
-      avatar: null,
-    },
-    {
-      id: "child2",
-      name: "Nguyễn Văn B",
-      age: 10,
-      grade: "Lớp 5",
-      type: "child",
-      avatar: null,
-    },
-  ];
 
   const handleAccountSelect = (account) => {
     if (account.type === "parent") {
       navigation.navigate("ParentTabs");
     } else {
-      navigation.navigate("StudentTabs", { childId: account.id });
+      // Chuyển đổi ID từ string thành number nếu cần
+      const childId = parseInt(account.id, 10) || account.id;
+      navigation.navigate("StudentTabs", { childId: childId });
     }
   };
 
@@ -61,7 +40,7 @@ const AccountSwitcherScreen = ({ navigation, route }) => {
             item.type === "parent" ? styles.parentAvatar : styles.childAvatar,
           ]}
         >
-          <Text style={styles.avatarText}>{item.name.charAt(0)}</Text>
+          <Text style={styles.avatarText}>{item.avatar}</Text>
         </View>
         {currentAccount === item.id && (
           <View style={styles.activeIndicator}>
@@ -83,6 +62,7 @@ const AccountSwitcherScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor={COLORS.mediumBlue} barStyle="light-content" />
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.closeButton}
@@ -97,7 +77,7 @@ const AccountSwitcherScreen = ({ navigation, route }) => {
       <View style={styles.content}>
         <Text style={styles.title}>Chọn tài khoản</Text>
         <FlatList
-          data={accounts}
+          data={accountsData}
           renderItem={renderAccountItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.accountsList}
@@ -185,9 +165,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFE0B2", // Light orange
   },
   avatarText: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: COLORS.darkBlue,
+    fontSize: 36,
+    textAlign: "center",
   },
   activeIndicator: {
     position: "absolute",

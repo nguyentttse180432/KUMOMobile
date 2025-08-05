@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,91 +7,214 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Image,
+  StatusBar,
+  Dimensions,
 } from "react-native";
 import { COLORS } from "../../constants/colors";
 
+const { width } = Dimensions.get('window');
+
 const PremiumScreen = ({ navigation }) => {
+  const [selectedPlan, setSelectedPlan] = useState('yearly');
+
+  const plans = [
+    {
+      id: 'monthly',
+      title: 'Gói Hàng Tháng',
+      price: '99.000',
+      period: 'tháng',
+      description: 'Truy cập đầy đủ các tính năng trong vòng 1 tháng',
+      savings: null,
+      popular: false,
+    },
+    {
+      id: 'yearly',
+      title: 'Gói Cả Năm',
+      price: '899.000',
+      period: 'năm',
+      description: 'Truy cập đầy đủ các tính năng trong vòng 12 tháng',
+      savings: '25%',
+      popular: true,
+      monthlyPrice: '75.000',
+    },
+  ];
+
+  const benefits = [
+    {
+      icon: '🎮',
+      title: 'Trò chơi học tập không giới hạn',
+      description: 'Hơn 100 trò chơi giáo dục cho trẻ em mọi lứa tuổi',
+      color: '#FF6B6B',
+    },
+    {
+      icon: '📝',
+      title: 'Bài tập được cá nhân hóa',
+      description: 'Bài tập được thiết kế riêng cho từng học sinh',
+      color: '#4ECDC4',
+    },
+    {
+      icon: '🏆',
+      title: 'Đổi quà không giới hạn',
+      description: 'Con bạn có thể đổi điểm thưởng lấy nhiều quà hơn',
+      color: '#45B7D1',
+    },
+    {
+      icon: '📊',
+      title: 'Báo cáo tiến độ chi tiết',
+      description: 'Theo dõi sự phát triển của con một cách toàn diện',
+      color: '#96CEB4',
+    },
+    {
+      icon: '🎯',
+      title: 'Học tập thông minh',
+      description: 'AI phân tích và gợi ý bài học phù hợp',
+      color: '#FFEAA7',
+    },
+    {
+      icon: '👨‍👩‍👧‍👦',
+      title: 'Tài khoản gia đình',
+      description: 'Quản lý nhiều con em trong một tài khoản',
+      color: '#DDA0DD',
+    },
+  ];
+
+  const renderPlanCard = (plan) => (
+    <TouchableOpacity
+      key={plan.id}
+      style={[
+        styles.planCard,
+        selectedPlan === plan.id && styles.selectedPlan,
+        plan.popular && styles.popularPlan,
+      ]}
+      onPress={() => setSelectedPlan(plan.id)}
+    >
+      {plan.popular && (
+        <View style={styles.popularBadge}>
+          <Text style={styles.popularBadgeText}>🔥 PHỔ BIẾN NHẤT</Text>
+        </View>
+      )}
+      
+      {plan.savings && (
+        <View style={styles.savingsBadge}>
+          <Text style={styles.savingsText}>Tiết kiệm {plan.savings}</Text>
+        </View>
+      )}
+
+      <View style={styles.planContent}>
+        <Text style={styles.planTitle}>{plan.title}</Text>
+        
+        <View style={styles.priceContainer}>
+          <Text style={styles.price}>{plan.price}</Text>
+          <Text style={styles.currency}>đ</Text>
+          <Text style={styles.period}>/{plan.period}</Text>
+        </View>
+
+        {plan.monthlyPrice && (
+          <Text style={styles.monthlyEquivalent}>
+            Tương đương {plan.monthlyPrice}đ/tháng
+          </Text>
+        )}
+
+        <Text style={styles.planDescription}>{plan.description}</Text>
+
+        <View style={styles.checkmarkContainer}>
+          <View style={[styles.checkmark, selectedPlan === plan.id && styles.checkmarkSelected]}>
+            {selectedPlan === plan.id && <Text style={styles.checkmarkIcon}>✓</Text>}
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const renderBenefitItem = (benefit, index) => (
+    <View key={index} style={styles.benefitItem}>
+      <View style={[styles.benefitIcon, { backgroundColor: benefit.color + '20' }]}>
+        <Text style={styles.iconText}>{benefit.icon}</Text>
+      </View>
+      <View style={styles.benefitContent}>
+        <Text style={styles.benefitTitle}>{benefit.title}</Text>
+        <Text style={styles.benefitDescription}>{benefit.description}</Text>
+      </View>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.mediumBlue} />
+      
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Gói Premium</Text>
+        <Text style={styles.headerTitle}>Nâng cấp Premium</Text>
+        <View style={styles.headerSpacer} />
       </View>
-      <ScrollView style={styles.content}>
-        <View style={styles.bannerContainer}>
-          <View style={styles.banner}>
-            <Text style={styles.bannerTitle}>KUMO Premium</Text>
-            <Text style={styles.bannerSubtitle}>
-              Trải nghiệm học tập hoàn hảo
+
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Hero Banner */}
+        <View style={styles.heroBanner}>
+          <View style={styles.heroGradient}>
+            <Text style={styles.heroTitle}>✨ KUMO Premium ✨</Text>
+            <Text style={styles.heroSubtitle}>
+              Mở khóa tiềm năng học tập vô hạn cho con bạn
             </Text>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Các gói Premium</Text>
-
-        <TouchableOpacity style={styles.planCard}>
-          <View style={styles.planHeader}>
-            <Text style={styles.planTitle}>Gói Hàng Tháng</Text>
-            <Text style={styles.planPrice}>99.000 đ/tháng</Text>
-          </View>
-          <Text style={styles.planDescription}>
-            Truy cập đầy đủ các tính năng trong vòng 1 tháng
+        {/* Pricing Plans */}
+        <View style={styles.plansSection}>
+          <Text style={styles.sectionTitle}>Chọn gói phù hợp</Text>
+          <Text style={styles.sectionSubtitle}>
+            Tất cả gói đều có thể hủy bất cứ lúc nào
           </Text>
-          <TouchableOpacity style={styles.subscribeButton}>
-            <Text style={styles.subscribeButtonText}>Đăng ký</Text>
-          </TouchableOpacity>
-        </TouchableOpacity>
+          
+          <View style={styles.plansContainer}>
+            {plans.map(renderPlanCard)}
+          </View>
+        </View>
 
-        <TouchableOpacity style={[styles.planCard, styles.bestValue]}>
-          <View style={styles.bestValueTag}>
-            <Text style={styles.bestValueText}>Tiết kiệm 25%</Text>
-          </View>
-          <View style={styles.planHeader}>
-            <Text style={styles.planTitle}>Gói Cả Năm</Text>
-            <Text style={styles.planPrice}>899.000 đ/năm</Text>
-          </View>
-          <Text style={styles.planDescription}>
-            Truy cập đầy đủ các tính năng trong vòng 12 tháng
+        {/* Benefits */}
+        <View style={styles.benefitsSection}>
+          <Text style={styles.sectionTitle}>Những lợi ích đặc biệt</Text>
+          <Text style={styles.sectionSubtitle}>
+            Tất cả những gì con bạn cần để học tập hiệu quả
           </Text>
-          <TouchableOpacity style={styles.subscribeButton}>
-            <Text style={styles.subscribeButtonText}>Đăng ký</Text>
-          </TouchableOpacity>
-        </TouchableOpacity>
+          
+          <View style={styles.benefitsGrid}>
+            {benefits.map(renderBenefitItem)}
+          </View>
+        </View>
 
-        <Text style={styles.sectionTitle}>Lợi ích Premium</Text>
-        <View style={styles.benefitItem}>
-          <View style={styles.benefitIcon}>
-            <Text style={styles.iconText}>🎮</Text>
-          </View>
-          <View style={styles.benefitContent}>
-            <Text style={styles.benefitTitle}>
-              Trò chơi học tập không giới hạn
-            </Text>
-            <Text style={styles.benefitDescription}>
-              Hơn 100 trò chơi giáo dục cho trẻ em mọi lứa tuổi
-            </Text>
-          </View>
-        </View>
-        <View style={styles.benefitItem}>
-          <View style={styles.benefitIcon}>
-            <Text style={styles.iconText}>📝</Text>
-          </View>
-          <View style={styles.benefitContent}>
-            <Text style={styles.benefitTitle}>Bài tập được cá nhân hóa</Text>
-            <Text style={styles.benefitDescription}>
-              Bài tập được thiết kế riêng cho từng học sinh
-            </Text>
+        {/* Trust Indicators */}
+        <View style={styles.trustSection}>
+          <Text style={styles.trustTitle}>Được tin tưởng bởi</Text>
+          <View style={styles.trustStats}>
+            <View style={styles.trustItem}>
+              <Text style={styles.trustNumber}>50,000+</Text>
+              <Text style={styles.trustLabel}>Phụ huynh</Text>
+            </View>
+            <View style={styles.trustItem}>
+              <Text style={styles.trustNumber}>4.9⭐</Text>
+              <Text style={styles.trustLabel}>Đánh giá</Text>
+            </View>
+            <View style={styles.trustItem}>
+              <Text style={styles.trustNumber}>1,000+</Text>
+              <Text style={styles.trustLabel}>Trường học</Text>
+            </View>
           </View>
         </View>
-        <View style={styles.benefitItem}>
-          <View style={styles.benefitIcon}>
-            <Text style={styles.iconText}>🏆</Text>
-          </View>
-          <View style={styles.benefitContent}>
-            <Text style={styles.benefitTitle}>Đổi quà không giới hạn</Text>
-            <Text style={styles.benefitDescription}>
-              Con bạn có thể đổi điểm thưởng lấy nhiều quà hơn
+
+        {/* CTA Button */}
+        <View style={styles.ctaSection}>
+          <TouchableOpacity style={styles.ctaButton}>
+            <Text style={styles.ctaButtonText}>
+              Bắt đầu với {plans.find(p => p.id === selectedPlan)?.title}
             </Text>
-          </View>
+            <Text style={styles.ctaButtonSubtext}>
+              {plans.find(p => p.id === selectedPlan)?.price}đ/{plans.find(p => p.id === selectedPlan)?.period}
+            </Text>
+          </TouchableOpacity>
+          
+          <Text style={styles.disclaimer}>
+            Đăng ký ngay để nhận 7 ngày dùng thử miễn phí
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -101,137 +224,315 @@ const PremiumScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F8F9FA",
   },
   header: {
     backgroundColor: COLORS.mediumBlue,
-    padding: 16,
+    paddingHorizontal: 20,
     paddingTop: 40,
+    paddingBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
+    fontSize: 24,
+    fontWeight: "700",
     color: COLORS.white,
+  },
+  headerSpacer: {
+    width: 32,
   },
   content: {
     flex: 1,
-    padding: 16,
   },
-  bannerContainer: {
-    marginBottom: 24,
+  heroBanner: {
+    margin: 20,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
   },
-  banner: {
-    backgroundColor: "#FFD700",
-    borderRadius: 12,
-    padding: 24,
-    alignItems: "center",
+  heroGradient: {
+    backgroundColor: '#6C63FF',
+    paddingVertical: 20,
+    paddingHorizontal: 24,
+    alignItems: 'center',
   },
-  bannerTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
+  heroTitle: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: COLORS.white,
     marginBottom: 8,
+    textAlign: 'center',
   },
-  bannerSubtitle: {
+  heroSubtitle: {
     fontSize: 16,
+    color: COLORS.white,
+    opacity: 0.9,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  heroStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: COLORS.white,
+    opacity: 0.8,
+  },
+  plansSection: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 16,
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#333",
+    marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 16,
+    color: "#666",
+    marginBottom: 20,
+  },
+  plansContainer: {
+    gap: 16,
   },
   planCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  bestValue: {
+    borderRadius: 16,
+    padding: 20,
     borderWidth: 2,
-    borderColor: "#FFD700",
-    position: "relative",
-    paddingTop: 24,
+    borderColor: '#E0E0E0',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  bestValueTag: {
-    position: "absolute",
+  selectedPlan: {
+    borderColor: COLORS.mediumBlue,
+    backgroundColor: '#F8F9FF',
+  },
+  popularPlan: {
+    borderColor: '#FF6B6B',
+    transform: [{ scale: 1.02 }],
+  },
+  popularBadge: {
+    position: 'absolute',
     top: -12,
-    right: 16,
-    backgroundColor: "#FFD700",
+    left: 20,
+    right: 20,
+    backgroundColor: '#FF6B6B',
+    paddingVertical: 6,
     paddingHorizontal: 12,
+    borderRadius: 20,
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  popularBadgeText: {
+    color: COLORS.white,
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  savingsBadge: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
   },
-  bestValueText: {
-    fontWeight: "bold",
+  savingsText: {
+    color: COLORS.white,
+    fontSize: 12,
+    fontWeight: 'bold',
   },
-  planHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 8,
+  planContent: {
+    marginTop: 12,
   },
   planTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#333",
+    marginBottom: 12,
   },
-  planPrice: {
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginBottom: 8,
+  },
+  price: {
+    fontSize: 32,
+    fontWeight: "800",
+    color: COLORS.mediumBlue,
+  },
+  currency: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: COLORS.mediumBlue,
+    marginLeft: 4,
+  },
+  period: {
     fontSize: 16,
-    fontWeight: "bold",
+    color: "#666",
+    marginLeft: 4,
+  },
+  monthlyEquivalent: {
+    fontSize: 14,
+    color: "#4CAF50",
+    fontWeight: '600',
+    marginBottom: 12,
   },
   planDescription: {
     fontSize: 14,
     color: "#666",
+    lineHeight: 20,
     marginBottom: 16,
   },
-  subscribeButton: {
-    backgroundColor: COLORS.mediumBlue,
-    paddingVertical: 12,
-    borderRadius: 25,
-    alignItems: "center",
+  checkmarkContainer: {
+    alignItems: 'flex-end',
   },
-  subscribeButtonText: {
+  checkmark: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkmarkSelected: {
+    backgroundColor: COLORS.mediumBlue,
+    borderColor: COLORS.mediumBlue,
+  },
+  checkmarkIcon: {
     color: COLORS.white,
-    fontWeight: "600",
-    fontSize: 16,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  benefitsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
+  },
+  benefitsGrid: {
+    gap: 16,
   },
   benefitItem: {
     flexDirection: "row",
-    marginBottom: 16,
     backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   benefitIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#E3F2FD",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    marginRight: 16,
   },
   benefitContent: {
     flex: 1,
   },
   benefitTitle: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 4,
   },
   benefitDescription: {
     fontSize: 14,
     color: "#666",
+    lineHeight: 20,
   },
   iconText: {
+    fontSize: 24,
+  },
+  trustSection: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
+    alignItems: 'center',
+  },
+  trustTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 16,
+  },
+  trustStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  trustItem: {
+    alignItems: 'center',
+  },
+  trustNumber: {
     fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.mediumBlue,
+    marginBottom: 4,
+  },
+  trustLabel: {
+    fontSize: 12,
+    color: '#666',
+  },
+  ctaSection: {
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+  },
+  ctaButton: {
+    backgroundColor: COLORS.mediumBlue,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: COLORS.mediumBlue,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    marginBottom: 16,
+  },
+  ctaButtonText: {
+    color: COLORS.white,
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  ctaButtonSubtext: {
+    color: COLORS.white,
+    fontSize: 14,
+    opacity: 0.9,
+  },
+  disclaimer: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });
 

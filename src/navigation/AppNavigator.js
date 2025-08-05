@@ -6,6 +6,9 @@ import ParentTabNavigator from "./ParentTabNavigator";
 import StudentTabNavigator from "./StudentTabNavigator";
 import AddChildScreen from "../screens/parent/AddChildScreen";
 import AccountSwitcherScreen from "../screens/AccountSwitcherScreen";
+import ChildDetailScreen from "../screens/parent/ChildDetailScreen";
+import AssignmentSubmissionScreen from "../screens/student/AssignmentSubmissionScreen";
+
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -22,6 +25,11 @@ const AppNavigator = () => {
       <Stack.Screen name="StudentTabs" component={StudentTabNavigator} />
       <Stack.Screen name="AddChild" component={AddChildScreen} />
       <Stack.Screen name="AccountSwitcher" component={AccountSwitcherScreen} />
+      <Stack.Screen name="ChildDetail" component={ChildDetailScreen} />
+      <Stack.Screen
+        name="AssignmentSubmission"
+        component={AssignmentSubmissionScreen}
+      />
     </Stack.Navigator>
   );
 };

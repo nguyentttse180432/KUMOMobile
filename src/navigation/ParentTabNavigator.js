@@ -7,6 +7,7 @@ import ParentHomeScreen from "../screens/parent/ParentHomeScreen";
 import ChildrenScreen from "../screens/parent/ChildrenScreen";
 import MessagesScreen from "../screens/parent/MessagesScreen";
 import PremiumScreen from "../screens/parent/PremiumScreen";
+import ScheduleScreen from "../screens/parent/ScheduleScreen";
 
 // Import colors
 import { COLORS } from "../constants/colors";
@@ -69,10 +70,20 @@ const ParentTabNavigator = () => {
         }}
       />
       <Tab.Screen
+        name="Schedule"
+        component={ScheduleScreen}
+        options={{
+          tabBarLabel: "Lịch",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="calendar" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Premium"
         component={PremiumScreen}
         options={{
-          tabBarLabel: "Nâng cao",
+          tabBarLabel: "Nâng cấp",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="star" color={color} size={size} />
           ),

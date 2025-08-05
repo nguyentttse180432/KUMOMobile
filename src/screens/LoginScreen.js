@@ -47,7 +47,7 @@ const LoginScreen = ({ navigation }) => {
           <View style={styles.passwordContainer}>
             <TextInput
               style={styles.passwordInput}
-              placeholder="Password"
+              placeholder="Mật khẩu"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -58,7 +58,7 @@ const LoginScreen = ({ navigation }) => {
               style={styles.showButton}
             >
               <Text style={styles.showButtonText}>
-                {showPassword ? "Hide" : "Show"}
+                {showPassword ? "Ẩn" : "Hiện"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -66,7 +66,7 @@ const LoginScreen = ({ navigation }) => {
             style={styles.loginButton}
             onPress={() => navigation.navigate("ParentTabs")}
           >
-            <Text style={styles.loginButtonText}>Log In</Text>
+            <Text style={styles.loginButtonText}>Đăng nhập</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.forgotPasswordButton}>
             <Text style={styles.forgotPasswordText}>Quên mật khẩu?</Text>
