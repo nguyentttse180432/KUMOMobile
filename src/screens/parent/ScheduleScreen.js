@@ -26,7 +26,7 @@ const ScheduleScreen = ({ navigation }) => {
 
   // Sample schedule data
   const scheduleData = {
-    "2025-07-08": [
+    "2025-08-05": [
       {
         id: 1,
         subject: "Toán học",
@@ -83,7 +83,7 @@ const ScheduleScreen = ({ navigation }) => {
         notes: "Mang giày thể thao",
       },
     ],
-    "2025-07-09": [
+    "2025-08-06": [
       {
         id: 6,
         subject: "Lịch sử",

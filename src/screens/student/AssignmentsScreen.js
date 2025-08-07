@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,9 +10,10 @@ import {
   Dimensions,
   StatusBar,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { COLORS } from "../../constants/colors";
-import { assignmentsData, childrenData } from "../../data/appData";
+import { childrenData } from "../../data/appData";
 
 const { width } = Dimensions.get("window");
 
@@ -23,8 +24,104 @@ const AssignmentsScreen = ({ route, navigation }) => {
   // Find child data
   const childData = childrenData.find((child) => child.id === childId);
 
-  // Get assignments for this child
-  const assignments = assignmentsData[childId] || [];
+  // State for assignments and loading
+  const [assignments, setAssignments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch assignments from API
+  const fetchAssignments = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('https://kumo.hsms.io.vn/assignments?class_id=fdv9yu4z7');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch assignments');
+      }
+      
+      const data = await response.json();
+      
+      // Transform API data to match our component structure
+      const transformedAssignments = data.map((item, index) => ({
+        id: item.id || item.assignment_id?.toString() || index.toString(),
+        title: item.title,
+        description: item.description,
+        subject: getSubjectName(item.subject_id),
+        dueDate: formatDueDate(item.due_date),
+        teacher: "Giáo viên",
+        isCompleted: item.status === 'completed',
+        emoji: getSubjectEmoji(item.subject_id),
+        color: getSubjectColor(item.subject_id),
+        attachment_url: item.attachment_url,
+        attachment_name: item.attachment_name,
+        total_coin: item.total_coin,
+        type: item.type,
+        class_id: item.class_id,
+        assignment_id: item.assignment_id
+      }));
+      
+      setAssignments(transformedAssignments);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching assignments:', err);
+      setError(err.message);
+      setAssignments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper functions for data transformation
+  const getSubjectName = (subjectId) => {
+    const subjects = {
+      1: "Toán",
+      2: "Tiếng Việt", 
+      3: "Tiếng Anh",
+      4: "Khoa học",
+      5: "Xã hội"
+    };
+    return subjects[subjectId] || "Môn học";
+  };
+
+  const getSubjectEmoji = (subjectId) => {
+    const emojis = {
+      1: "📊",
+      2: "📚",
+      3: "🌍",
+      4: "🔬",
+      5: "🏛️"
+    };
+    return emojis[subjectId] || "📝";
+  };
+
+  const getSubjectColor = (subjectId) => {
+    const colors = {
+      1: "#FFE5B4", // Toán - màu vàng nhạt
+      2: "#E5F3FF", // Tiếng Việt - màu xanh nhạt
+      3: "#E8F5E8", // Tiếng Anh - màu xanh lá nhạt
+      4: "#FFE5E5", // Khoa học - màu đỏ nhạt
+      5: "#F0E5FF"  // Xã hội - màu tím nhạt
+    };
+    return colors[subjectId] || "#E2EAF2";
+  };
+
+  const formatDueDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  // Fetch assignments on component mount
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
+  // Handle refresh
+  const handleRefresh = () => {
+    fetchAssignments();
+  };
 
   // Handle assignment press
   const handleAssignmentPress = (assignment) => {
@@ -121,79 +218,105 @@ const AssignmentsScreen = ({ route, navigation }) => {
             Bài Tập Của {childData?.nickname || "Tôi"}
           </Text>
           <Text style={styles.headerSubtitle}>Hôm nay học gì nhỉ? 🤔</Text>
+          {error && (
+            <TouchableOpacity onPress={handleRefresh} style={styles.refreshButton}>
+              <Text style={styles.refreshText}>↻ Tải lại</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
       <View style={styles.content}>
-        {/* Tab Bar for filtering assignments */}
-        <View style={styles.tabBar}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === "pending" && styles.activeTab]}
-            onPress={() => setActiveTab("pending")}
-          >
-            <Text style={styles.tabEmoji}>🔥</Text>
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "pending" && styles.activeTabText,
-              ]}
-            >
-              Cần làm
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === "completed" && styles.activeTab]}
-            onPress={() => setActiveTab("completed")}
-          >
-            <Text style={styles.tabEmoji}>✅</Text>
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "completed" && styles.activeTabText,
-              ]}
-            >
-              Đã hoàn thành
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Motivational banner - conditionally displayed */}
-        {pendingCount > 0 && (
-          <View style={styles.motivationBanner}>
-            <Text style={styles.motivationText}>
-              {pendingCount > 2
-                ? `Cố lên! Chỉ còn ${pendingCount} bài nữa thôi! 💪`
-                : pendingCount === 1
-                ? "Cố lên! Chỉ còn 1 bài nữa thôi! 💪"
-                : "Cố lên! Sắp hoàn thành rồi! 💪"}
-            </Text>
+        {/* Loading indicator */}
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={COLORS.mediumBlue} />
+            <Text style={styles.loadingText}>Đang tải bài tập...</Text>
           </View>
-        )}
-
-        <FlatList
-          data={filteredAssignments}
-          renderItem={renderAssignmentItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyEmoji}>
-                {activeTab === "pending" ? "🎉" : "🏆"}
-              </Text>
-              <Text style={styles.emptyText}>
-                {activeTab === "pending"
-                  ? "Không có bài tập nào cần làm!"
-                  : "Chưa có bài tập nào hoàn thành!"}
-              </Text>
-              <Text style={styles.emptySubtext}>
-                {activeTab === "pending"
-                  ? "Thời gian nghỉ ngơi rồi!"
-                  : "Hãy bắt đầu làm bài tập nhé!"}
-              </Text>
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorEmoji}>⚠️</Text>
+            <Text style={styles.errorText}>Không thể tải bài tập</Text>
+            <Text style={styles.errorSubtext}>{error}</Text>
+            <TouchableOpacity onPress={handleRefresh} style={styles.retryButton}>
+              <Text style={styles.retryText}>Thử lại</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            {/* Tab Bar for filtering assignments */}
+            <View style={styles.tabBar}>
+              <TouchableOpacity
+                style={[styles.tab, activeTab === "pending" && styles.activeTab]}
+                onPress={() => setActiveTab("pending")}
+              >
+                <Text style={styles.tabEmoji}>🔥</Text>
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === "pending" && styles.activeTabText,
+                  ]}
+                >
+                  Cần làm
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tab, activeTab === "completed" && styles.activeTab]}
+                onPress={() => setActiveTab("completed")}
+              >
+                <Text style={styles.tabEmoji}>✅</Text>
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === "completed" && styles.activeTabText,
+                  ]}
+                >
+                  Đã hoàn thành
+                </Text>
+              </TouchableOpacity>
             </View>
-          }
-        />
+
+            {/* Motivational banner - conditionally displayed */}
+            {pendingCount > 0 && (
+              <View style={styles.motivationBanner}>
+                <Text style={styles.motivationText}>
+                  {pendingCount > 2
+                    ? `Cố lên! Chỉ còn ${pendingCount} bài nữa thôi! 💪`
+                    : pendingCount === 1
+                    ? "Cố lên! Chỉ còn 1 bài nữa thôi! 💪"
+                    : "Cố lên! Sắp hoàn thành rồi! 💪"}
+                </Text>
+              </View>
+            )}
+
+            <FlatList
+              data={filteredAssignments}
+              renderItem={renderAssignmentItem}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.listContainer}
+              showsVerticalScrollIndicator={false}
+              refreshing={loading}
+              onRefresh={handleRefresh}
+              ListEmptyComponent={
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyEmoji}>
+                    {activeTab === "pending" ? "🎉" : "🏆"}
+                  </Text>
+                  <Text style={styles.emptyText}>
+                    {activeTab === "pending"
+                      ? "Không có bài tập nào cần làm!"
+                      : "Chưa có bài tập nào hoàn thành!"}
+                  </Text>
+                  <Text style={styles.emptySubtext}>
+                    {activeTab === "pending"
+                      ? "Thời gian nghỉ ngơi rồi!"
+                      : "Hãy bắt đầu làm bài tập nhé!"}
+                  </Text>
+                </View>
+              }
+            />
+          </>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -487,6 +610,65 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#5E6C84", // Đổi màu phụ text trống sang xám đậm hơn
     fontWeight: "500",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 40,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#4A5568",
+    fontWeight: "500",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 40,
+  },
+  errorEmoji: {
+    fontSize: 60,
+    marginBottom: 16,
+  },
+  errorText: {
+    fontSize: 18,
+    color: "#E53E3E",
+    fontWeight: "700",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  errorSubtext: {
+    fontSize: 14,
+    color: "#5E6C84",
+    fontWeight: "500",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: COLORS.mediumBlue,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+  },
+  retryText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  refreshButton: {
+    marginTop: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 15,
+  },
+  refreshText: {
+    color: "#2C405A",
+    fontWeight: "600",
+    fontSize: 14,
   },
 });
 

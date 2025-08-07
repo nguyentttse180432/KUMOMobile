@@ -21,7 +21,7 @@ const PremiumScreen = ({ navigation }) => {
     {
       id: 'monthly',
       title: 'Gói Hàng Tháng',
-      price: '99.000',
+      price: '39.000',
       period: 'tháng',
       description: 'Truy cập đầy đủ các tính năng trong vòng 1 tháng',
       savings: null,
@@ -30,7 +30,7 @@ const PremiumScreen = ({ navigation }) => {
     {
       id: 'yearly',
       title: 'Gói Cả Năm',
-      price: '899.000',
+      price: '299.000',
       period: 'năm',
       description: 'Truy cập đầy đủ các tính năng trong vòng 12 tháng',
       savings: '25%',
@@ -57,24 +57,6 @@ const PremiumScreen = ({ navigation }) => {
       title: 'Đổi quà không giới hạn',
       description: 'Con bạn có thể đổi điểm thưởng lấy nhiều quà hơn',
       color: '#45B7D1',
-    },
-    {
-      icon: '📊',
-      title: 'Báo cáo tiến độ chi tiết',
-      description: 'Theo dõi sự phát triển của con một cách toàn diện',
-      color: '#96CEB4',
-    },
-    {
-      icon: '🎯',
-      title: 'Học tập thông minh',
-      description: 'AI phân tích và gợi ý bài học phù hợp',
-      color: '#FFEAA7',
-    },
-    {
-      icon: '👨‍👩‍👧‍👦',
-      title: 'Tài khoản gia đình',
-      description: 'Quản lý nhiều con em trong một tài khoản',
-      color: '#DDA0DD',
     },
   ];
 
@@ -203,7 +185,7 @@ const PremiumScreen = ({ navigation }) => {
 
         {/* CTA Button */}
         <View style={styles.ctaSection}>
-          <TouchableOpacity style={styles.ctaButton}>
+          <TouchableOpacity style={styles.ctaButton} onPress={() => navigation.navigate('Payment')}>
             <Text style={styles.ctaButtonText}>
               Bắt đầu với {plans.find(p => p.id === selectedPlan)?.title}
             </Text>
@@ -212,9 +194,6 @@ const PremiumScreen = ({ navigation }) => {
             </Text>
           </TouchableOpacity>
           
-          <Text style={styles.disclaimer}>
-            Đăng ký ngay để nhận 7 ngày dùng thử miễn phí
-          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -8,6 +8,7 @@ import AddChildScreen from "../screens/parent/AddChildScreen";
 import AccountSwitcherScreen from "../screens/AccountSwitcherScreen";
 import ChildDetailScreen from "../screens/parent/ChildDetailScreen";
 import AssignmentSubmissionScreen from "../screens/student/AssignmentSubmissionScreen";
+import PaymentScreen from "../screens/parent/PaymentScreen";
 
 const Stack = createStackNavigator();
 
@@ -29,6 +30,13 @@ const AppNavigator = () => {
       <Stack.Screen
         name="AssignmentSubmission"
         component={AssignmentSubmissionScreen}
+      />
+      <Stack.Screen
+        name="Payment"
+        component={PaymentScreen}
+        screenOptions={{
+          headerShown: true,
+        }}
       />
     </Stack.Navigator>
   );
